@@ -22,167 +22,78 @@ ap.add_argument("-v", "--visualize",
 args = vars(ap.parse_args())
 
 # load the image image, convert it to grayscale, and detect edges
-template = cv2.imread(args["template"])
+template = cv2.imread('./input/'+args["template"])
 template = cv2.cvtColor(template, cv2.COLOR_BGR2GRAY)
 template = cv2.Canny(template, 50, 200)
 (tH, tW) = template.shape[:2]
-
 #cv2.imshow("Template", template)
-strs = ["jpg","png"]
+
+#image extensions to be checked
+extn = ["jpg","png"]
+
+#to be extracted
+fields = ["doi","doe","passno","dob","name","surname"]
 
 
-
-d = {'x1': [171/398, 293/398,298/398,299/398,140/398,138/398], 
-     'x2': [257/398, 389/398,390/398,382/398,281/398,270/398],
+#dataframe of all the points to form the bounding box for every field
+d = {'x1': [170/398, 293/398,298/398,299/398,140/398,138/398], 
+     'x2': [258/398, 389/398,390/398,382/398,281/398,270/398],
      'y1': [455/540, 453/540,316/540,379/540,357/540,333/540],
-     'y2': [470/540, 480/540,338/540,400/540,371/540,349/540]}
+     'y2': [471/540, 480/540,338/540,400/540,371/540,349/540]}
 
 df = pd.DataFrame(data=d)
 df.rename(index={0:'doi',1:'doe',2:'passno',3:'dob',4:'name',5:'surname'},inplace=True)
 
-
+# A dataframe storing all the fields for all the images
 info = pd.DataFrame(columns=['surname', 'name', 'passno','dob','doi','doe'])
 
-def get_doi(x,y,img):
 
-    y1 = int(y*df.loc['doi','y1'])
-    y2 = int(y*df.loc['doi','y2'])
-    x1 = int(x*df.loc['doi','x1'])
-    x2 = int(x*df.loc['doi','x2'])
+def get_info(x,y,img,fields,df1):
 
-    # if y>1000:  
-    #     y2 = int(y*473/540)
+	for field in fields:
+		y1 = int(y*df.loc[field,'y1'])
+		y2 = int(y*df.loc[field,'y2'])
+		x1 = int(x*df.loc[field,'x1'])
+		x2 = int(x*df.loc[field,'x2'])
 
-    crop_img = img[y1:y2,x1:x2] 
+		crop_img = img[y1:y2,x1:x2] 
+	    
+	    #uncomment to see the cropped image for OCR
+    		#cv2.imshow("Cropped image DOI",crop_img)
 
-    #uncomment to see the cropped image for OCR
-    #cv2.imshow("Cropped image DOI",crop_img)
+		filename = "{}.png".format(os.getpid())
+		cv2.imwrite(filename, crop_img)
 
-    filename = "{}.png".format(os.getpid())
-    cv2.imwrite(filename, crop_img)
+		text = pytesseract.image_to_string(Image.open(filename))
+		os.remove(filename)
+	    #cv2.waitKey(0)
+		if field=='doi' or field == 'dob'or field == 'doe':
+			text = re.findall(r"\d\d/\d\d/\d\d\d\d",text)
+		else:
+			text = re.findall(r"\w*",text)
+			text = " ".join(text)
+			text = text.strip()
 
-    text = pytesseract.image_to_string(Image.open(filename))
-    os.remove(filename)
-    #cv2.waitKey(0)
-    text = re.findall(r"\d\d/\d\d/\d\d\d\d",text)
-    return text
+		df1[field]=text
 
-def get_doe(x,y,img):
-
-    y1 = int(y*df.loc['doe','y1'])
-    y2 = int(y*df.loc['doe','y2'])
-    x1 = int(x*df.loc['doe','x1'])
-    x2 = int(x*df.loc['doe','x2'])
-
-
+	return df1
 
 
 
-    crop_img = img[y1:y2,x1:x2] 
-
-    #uncomment to see the cropped image for OCR
-    # cv2.imshow("Cropped image Expiry",crop_img)
-
-    filename = "{}.png".format(os.getpid())
-    cv2.imwrite(filename, crop_img)
-
-    text = pytesseract.image_to_string(Image.open(filename))
-    os.remove(filename)
-    #cv2.waitKey(0)
-    text = re.findall(r"\d\d/\d\d/\d\d\d\d",text)
-    return text
-
-def get_passno(x,y,img):
-
-    y1 = int(y*df.loc['passno','y1'])
-    y2 = int(y*df.loc['passno','y2'])
-    x1 = int(x*df.loc['passno','x1'])
-    x2 = int(x*df.loc['passno','x2'])
-
-    crop_img = img[y1:y2,x1:x2] 
-
-    #uncomment to see the cropped image for OCR
-    # cv2.imshow("Cropped image passno",crop_img)
-
-    filename = "{}.png".format(os.getpid())
-    cv2.imwrite(filename, crop_img)
-
-    text = pytesseract.image_to_string(Image.open(filename))
-    os.remove(filename)
-    # cv2.waitKey(0)
-    return text
-
-def get_surname(x,y,img):
-
-    y1 = int(y*df.loc['surname','y1'])
-    y2 = int(y*df.loc['surname','y2'])
-    x1 = int(x*df.loc['surname','x1'])
-    x2 = int(x*df.loc['surname','x2'])
-
-    crop_img = img[y1:y2,x1:x2] 
-
-    #uncomment to see the cropped image for OCR
-    # cv2.imshow("Cropped image Surname",crop_img)
-
-    filename = "{}.png".format(os.getpid())
-    cv2.imwrite(filename, crop_img)
-
-    text = pytesseract.image_to_string(Image.open(filename))
-    os.remove(filename)
-    #cv2.waitKey(0)
-    text = re.findall(r"\w*",text)
-    text = " ".join(text)
-    text = text.strip()
-    return text
-
-def get_name(x,y,img):
-
-    y1 = int(y*df.loc['name','y1'])
-    y2 = int(y*df.loc['name','y2'])
-    x1 = int(x*df.loc['name','x1'])
-    x2 = int(x*df.loc['name','x2'])
-
-    crop_img = img[y1:y2,x1:x2] 
-
-    #uncomment to see the cropped image for OCR
-    # cv2.imshow("Cropped image Name",crop_img)
-
-    filename = "{}.png".format(os.getpid())
-    cv2.imwrite(filename, crop_img)
-
-    text = pytesseract.image_to_string(Image.open(filename))
-    os.remove(filename)
-    #cv2.waitKey(0)
-    text = re.findall(r"\w*",text)
-    text = " ".join(text)
-    text = text.strip()
-    return text
+def imgName(imagePath):
+		imgName = imagePath.split('\\')
+		imgName = imgName[-1:]
+		imgName = "".join(imgName)
+		imgName = imgName.split('.')
+		imgName = imgName[0]
+		folder = "".join(imgName)
+		return folder
 
 
-def get_dob(x,y,img):
 
-    y1 = int(y*df.loc['dob','y1'])
-    y2 = int(y*df.loc['dob','y2'])
-    x1 = int(x*df.loc['dob','x1'])
-    x2 = int(x*df.loc['dob','x2'])
-
-    crop_img = img[y1:y2,x1:x2] 
-
-    #uncomment to see the cropped image for OCR
-    # cv2.imshow("Cropped image DOB",crop_img)
-
-    filename = "{}.png".format(os.getpid())
-    cv2.imwrite(filename, crop_img)
-
-    text = pytesseract.image_to_string(Image.open(filename))
-    os.remove(filename)
-    #cv2.waitKey(0)
-    text = re.findall(r"\d\d/\d\d/\d\d\d\d",text)
-    return text
-
-for i in strs:
+for i in extn:
     # loop over the images to find the template in
-    for imagePath in glob.glob(args["images"] + "/*_1."+i):
+    for imagePath in glob.glob(args["images"] + "/input/*_1."+i):
         # load the image, convert it to grayscale, and initialize the
         # bookkeeping variable to keep track of the matched region
         image = cv2.imread(imagePath)
@@ -232,27 +143,27 @@ for i in strs:
         
         img = image[startY:endY,startX:endX]
 
-        #cv2.imshow("Image after template", img)
+        #cv2.imshow("Image after template matching", img)
+
+        df1 = pd.DataFrame(columns=['surname', 'name', 'passno','dob','doi','doe'])
 
         y,x = img.shape[:2]
 
-        doi = get_doi(x,y,img)
-
-        dob = get_dob(x,y,img)
-
-        surname = get_surname(x,y,img)
-
-        name = get_name(x,y,img)
-
-        passno= get_passno(x,y,img)
-
-        doe = get_doe(x,y,img)
-
-        df1 = pd.DataFrame([[surname,name,passno,dob,doi,doe]], columns=['surname', 'name', 'passno','dob','doi','doe'])
-
+        df1 = get_info(x,y,img,fields,df1)
+        
         info = info.append(df1,ignore_index=True)
 
+        iName = imgName(imagePath)
+
+        if not os.path.exists('./output/'+iName+''):
+        	os.mkdir('./output/'+iName+'')
+
+        export_csv = df1.to_csv (r'./output/'+iName+'/passInfo_'+iName+'.csv', index = None, header=True)
+        print(df1)
+
+        
+
+
 export_csv = info.to_csv (r'passInfo.csv', index = None, header=True)
-print(info.loc[:,'doi'])
 print("CSV generated as passInfotest.csv")
 
