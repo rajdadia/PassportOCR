@@ -160,7 +160,6 @@ for i in extn:
         	os.mkdir('./output/'+iName+'')
 
         export_csv = df1.to_csv (r'./output/'+iName+'/passInfo_'+iName+'.csv', index = None, header=True)
-        print(df1)
 
         
 
