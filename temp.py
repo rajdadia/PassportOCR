@@ -249,6 +249,6 @@ for i in strs:
         info = info.append(df1,ignore_index=True)
 
 export_csv = info.to_csv (r'passInfo.csv', index = None, header=True)
-print(info)
+print(info.loc[2,'doe'])
 print("CSV generated as passInfo.csv")
 
