@@ -32,7 +32,7 @@ strs = ["jpg","png"]
 
 
 
-d = {'x1': [173/398, 293/398,298/398,299/398,140/398,138/398], 
+d = {'x1': [171/398, 293/398,298/398,299/398,140/398,138/398], 
      'x2': [257/398, 389/398,390/398,382/398,281/398,270/398],
      'y1': [455/540, 453/540,316/540,379/540,357/540,333/540],
      'y2': [470/540, 480/540,338/540,400/540,371/540,349/540]}
@@ -50,8 +50,8 @@ def get_doi(x,y,img):
     x1 = int(x*df.loc['doi','x1'])
     x2 = int(x*df.loc['doi','x2'])
 
-    if y>1000:  
-        y2 = int(y*473/540)
+    # if y>1000:  
+    #     y2 = int(y*473/540)
 
     crop_img = img[y1:y2,x1:x2] 
 
@@ -73,6 +73,10 @@ def get_doe(x,y,img):
     y2 = int(y*df.loc['doe','y2'])
     x1 = int(x*df.loc['doe','x1'])
     x2 = int(x*df.loc['doe','x2'])
+
+
+
+
 
     crop_img = img[y1:y2,x1:x2] 
 
@@ -249,6 +253,6 @@ for i in strs:
         info = info.append(df1,ignore_index=True)
 
 export_csv = info.to_csv (r'passInfo.csv', index = None, header=True)
-print(info.loc[2,'doe'])
-print("CSV generated as passInfo.csv")
+print(info.loc[:,'doi'])
+print("CSV generated as passInfotest.csv")
 
