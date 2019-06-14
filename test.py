@@ -48,6 +48,7 @@ df.rename(index={0:'doi',1:'doe',2:'passno',3:'dob',4:'name',5:'surname'},inplac
 info = pd.DataFrame(columns=['surname', 'name', 'passno','dob','doi','doe'])
 
 
+
 def get_info(x,y,img,fields,df1):
 
 	for field in fields:
@@ -164,6 +165,6 @@ for i in extn:
         
 
 
-export_csv = info.to_csv (r'passInfo.csv', index = None, header=True)
+export_csv = info.to_csv (r'TotalpassInfo.csv', index = None, header=True)
 print("CSV generated as passInfotest.csv")
 
