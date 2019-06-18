@@ -160,10 +160,12 @@ for i in extn:
         	os.mkdir('./output/'+iName+'')
 
         export_csv = df1.to_csv (r'./output/'+iName+'/passInfo_'+iName+'.csv', index = None, header=True)
+        export_json = df1.to_json (r'./output/'+iName+'/passInfo_'+iName+'.json', index = None, header=True)
 
         
 
 
 export_csv = info.to_csv (r'TotalpassInfo.csv', index = None, header=True)
+export_json = info.to_json(r'TotalpassInfo.json', index = None, header=True)
 print("CSV generated as passInfotest.csv")
 
