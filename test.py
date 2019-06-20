@@ -33,13 +33,13 @@ extn = ["jpg","png"]
 
 #to be extracted
 fields = ["doi","doe","passno","dob","name","surname"]
-# fields = ["dob"]
+# fields = ["name"]
 
 #dataframe of all the points to form the bounding box for every field
-d = {'x1': [163/385, 278/385,284/385,281/385,140/398,138/398], 
-     'x2': [245/385, 373/385,380/385,371/385,281/398,270/398],
-     'y1': [181/266, 181/266,45/266,111/266,357/540,333/540],
-     'y2': [200/266, 205/266,65/266,131/266,371/540,349/540]}
+d = {'x1': [163/385, 278/385,284/385,281/385,126/385,128/385], 
+     'x2': [245/385, 373/385,380/385,371/385,249/385,200/385],
+     'y1': [181/266, 181/266,45/266,111/266,83/266,60/266],
+     'y2': [200/266, 205/266,65/266,131/266,99/266,80/266]}
 
 df = pd.DataFrame(data=d)
 df.rename(index={0:'doi',1:'doe',2:'passno',3:'dob',4:'name',5:'surname'},inplace=True)
@@ -64,7 +64,7 @@ def get_info(x,y,img,fields,df1):
 
 
 		crop_img = img[y1:y2,x1:x2] 
-						# crop_img = img[ys:ye,xs:xe] 
+						# crop_img = img[ys:ye,xs:xe] 		
 	    
 	    #uncomment to see the cropped image for OCR
 		# if field == 'doe':
@@ -85,9 +85,10 @@ def get_info(x,y,img,fields,df1):
 			text = text.strip()
 
 		if len(text)>0:
-			# if text[0] == '01/11/1973':
-			print(field,"  ...   ",text)
-								# print((x1/x)*385,'x1      x2',(x2/x)*385,'  ....    ',(y1/y)*266,'y1       y2',(y2/y)*266)
+			# if text == 'AISHWARYA':
+			# print(field,"  ...   ",text)
+								# print((xs/x)*385,'x1      x2',(xe/x)*385,'  ....    ',(ys/y)*266,'y1       y2',(ye/y)*266)
+
 		if len(text)==0:
 			text = 'Empty'
 		df1[field]=text
@@ -110,7 +111,6 @@ def imgName(imagePath):
 for i in extn:
     # loop over the images to find the template in
     for imagePath in glob.glob("./input/*_1."+i):
-        print("__________====________=====___________")
         # load the image, convert it to grayscale, and initialize the
         # bookkeeping variable to keep track of the matched region
         image = cv2.imread(imagePath)
