@@ -174,7 +174,8 @@ def uploaded_files(filename):
         
         img = image[startY:endY,startX:endX]
 
-        #cv2.imshow("Image after template matching", img)
+        # cv2.imshow("Image after template matching", img)
+        # cv2.waitKey(0)
 
         df1 = pd.DataFrame(columns=['surname', 'name', 'passno','dob','doi','doe'])
 
