@@ -30,10 +30,10 @@ fields = ["doi","doe","passno","dob","name","surname"]
 
 
 #dataframe of all the points to form the bounding box for every field
-d = {'x1': [170/398, 293/398,298/398,299/398,140/398,138/398], 
-     'x2': [258/398, 389/398,390/398,382/398,281/398,270/398],
-     'y1': [455/540, 453/540,316/540,379/540,357/540,333/540],
-     'y2': [471/540, 480/540,338/540,400/540,371/540,349/540]}
+d = {'x1': [163/385, 278/385,284/385,281/385,126/385,128/385], 
+     'x2': [245/385, 373/385,380/385,371/385,249/385,200/385],
+     'y1': [181/266, 181/266,45/266,111/266,83/266,60/266],
+     'y2': [200/266, 205/266,65/266,131/266,99/266,80/266]}
 
 df = pd.DataFrame(data=d)
 df.rename(index={0:'doi',1:'doe',2:'passno',3:'dob',4:'name',5:'surname'},inplace=True)
@@ -65,6 +65,8 @@ def get_info(x,y,img,fields,df1):
             text = " ".join(text)
             text = text.strip()
 
+        if len(text)==0:
+            text = 'Empty'
         df1[field]=text
 
     return df1
@@ -193,8 +195,6 @@ def uploaded_files(filename):
         print(df1)
         export_json = df1.to_json (r'./uploads/'+iName+'.json' )
         filename = iName+".json"
-        print("\nIname is ...."+iName+"\nfilename is ...."+filename+"\n")
-
 
     return send_from_directory(app.config['UPLOAD_FOLDER'],
                                filename)
