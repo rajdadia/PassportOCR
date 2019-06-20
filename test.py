@@ -22,7 +22,7 @@ import time
 # args = vars(ap.parse_args())
 
 # load the image image, convert it to grayscale, and detect edges
-template = cv2.imread('./input/3_1.png')
+template = cv2.imread('./input/3_1_1.png')
 template = cv2.cvtColor(template, cv2.COLOR_BGR2GRAY)
 template = cv2.Canny(template, 50, 200)
 (tH, tW) = template.shape[:2]
@@ -33,13 +33,13 @@ extn = ["jpg","png"]
 
 #to be extracted
 fields = ["doi","doe","passno","dob","name","surname"]
-
+# fields = ["dob"]
 
 #dataframe of all the points to form the bounding box for every field
-d = {'x1': [170/398, 293/398,298/398,299/398,140/398,138/398], 
-     'x2': [258/398, 389/398,390/398,382/398,281/398,270/398],
-     'y1': [455/540, 453/540,316/540,379/540,357/540,333/540],
-     'y2': [471/540, 480/540,338/540,400/540,371/540,349/540]}
+d = {'x1': [163/385, 278/385,284/385,281/385,140/398,138/398], 
+     'x2': [245/385, 373/385,380/385,371/385,281/398,270/398],
+     'y1': [181/266, 181/266,45/266,111/266,357/540,333/540],
+     'y2': [200/266, 205/266,65/266,131/266,371/540,349/540]}
 
 df = pd.DataFrame(data=d)
 df.rename(index={0:'doi',1:'doe',2:'passno',3:'dob',4:'name',5:'surname'},inplace=True)
@@ -57,17 +57,26 @@ def get_info(x,y,img,fields,df1):
 		x1 = int(x*df.loc[field,'x1'])
 		x2 = int(x*df.loc[field,'x2'])
 
+		# for xs in range(x1-3,x1+3):
+		# 	for xe in range(x2-3,x2+3):
+		# 		for ys in range(y1-3,y1+3):
+		# 			for ye in range(y2-3,y2+3):
+
+
 		crop_img = img[y1:y2,x1:x2] 
+						# crop_img = img[ys:ye,xs:xe] 
 	    
 	    #uncomment to see the cropped image for OCR
-    		#cv2.imshow("Cropped image DOI",crop_img)
+		# if field == 'doe':
+		# cv2.imshow("Cropped image DOI",crop_img)
+		# cv2.waitKey(0)
 
 		filename = "{}.png".format(os.getpid())
 		cv2.imwrite(filename, crop_img)
 
 		text = pytesseract.image_to_string(Image.open(filename))
 		os.remove(filename)
-	    #cv2.waitKey(0)
+	    
 		if field=='doi' or field == 'dob'or field == 'doe':
 			text = re.findall(r"\d\d/\d\d/\d\d\d\d",text)
 		else:
@@ -75,6 +84,12 @@ def get_info(x,y,img,fields,df1):
 			text = " ".join(text)
 			text = text.strip()
 
+		if len(text)>0:
+			# if text[0] == '01/11/1973':
+			print(field,"  ...   ",text)
+								# print((x1/x)*385,'x1      x2',(x2/x)*385,'  ....    ',(y1/y)*266,'y1       y2',(y2/y)*266)
+		if len(text)==0:
+			text = 'Empty'
 		df1[field]=text
 
 	return df1
@@ -95,6 +110,7 @@ def imgName(imagePath):
 for i in extn:
     # loop over the images to find the template in
     for imagePath in glob.glob("./input/*_1."+i):
+        print("__________====________=====___________")
         # load the image, convert it to grayscale, and initialize the
         # bookkeeping variable to keep track of the matched region
         image = cv2.imread(imagePath)
@@ -144,7 +160,8 @@ for i in extn:
         
         img = image[startY:endY,startX:endX]
 
-        #cv2.imshow("Image after template matching", img)
+        # cv2.imshow("Image after template matching", img)
+        # cv2.waitKey(0)
 
         df1 = pd.DataFrame(columns=['surname', 'name', 'passno','dob','doi','doe'])
 
