@@ -190,6 +190,7 @@ def uploaded_files(filename):
             os.mkdir('./output/'+iName+'')
 
         export_csv = df1.to_csv (r'./output/'+iName+'/passInfo_'+iName+'.csv', index = None, header=True)
+        print(df1)
         export_json = df1.to_json (r'./uploads/'+iName+'.json' )
         filename = iName+".json"
         print("\nIname is ...."+iName+"\nfilename is ...."+filename+"\n")
@@ -200,4 +201,4 @@ def uploaded_files(filename):
 
 
 if __name__ == '__main__':
-   app.run(debug = True)
+   app.run(host='0.0.0.0')
