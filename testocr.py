@@ -122,6 +122,9 @@ def upload_file():
     </form>
     '''
 
+
+
+
 @app.route('/uploads/<filename>')
 def uploaded_files(filename):
 	
@@ -196,9 +199,15 @@ def uploaded_files(filename):
             os.mkdir('./output/'+iName+'')
 
         export_csv = df1.to_csv (r'./output/'+iName+'/passInfo_'+iName+'.csv', index = None, header=True)
-        print(df1)
+        # print(df1)
         export_json = df1.to_json (r'./uploads/'+iName+'.json' )
         filename = iName+".json"
+
+        dictValues ={}
+        for col in df1.columns:
+        	dictValues.update( { col : df1.loc[:,col][0]} )
+
+        print(dictValues)
 
     return send_from_directory(app.config['UPLOAD_FOLDER'],
                                filename)
